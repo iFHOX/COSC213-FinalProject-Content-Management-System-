@@ -30,10 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_comment'])) {
 
 // Fetch article details
 $conn = getDBConnection();
-$stmt = $conn->prepare("SELECT p.*, u.username 
-                        FROM posts p 
-                        JOIN users u ON p.user_id = u.id 
-                        WHERE p.id = ?");
+$stmt = $conn->prepare("SELECT posts.*, users.username 
+                        FROM posts 
+                        JOIN users ON posts.user_id = users.id 
+                        WHERE posts.id = ?");
 $stmt->bind_param("i", $article_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -60,7 +60,6 @@ $conn->close();
   <meta charset="UTF-8">
   <title><?php echo htmlspecialchars($article['title']); ?> | Find Your Hike!</title>
   <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
 </head>
 <body>
   <header class="header">
@@ -114,4 +113,5 @@ $conn->close();
   </footer>
 </body>
 </html>
+
 
