@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn = getDBConnection();
         
         // Prepare statement to prevent SQL injection
-        $stmt = $conn->prepare("SELECT id, email, password, username FROM users WHERE email = ?");
+        $stmt = $conn->prepare("SELECT id, email, password, username, role FROM users WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -30,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['email'] = $user['email'];
                 $_SESSION['username'] = $user['username'];
+                $_SESSION['role'] = $user['role'];
                 
                 $stmt->close();
                 $conn->close();
@@ -53,12 +54,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Login | Find Your Hike!L</title>
+  <title>Login | Find Your Hike!</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="header">
-    <a href="index.php"><img class="logo" id="logo" src="logo.png" alt="Logo with mountains on it that spells 'Find Your Hike'"></a>
+      <a href="index.php"><img class="logo" id="logo" src="logo.png" alt="Logo with mountains on it that spells 'Find Your Hike'"></a>
   </header>
 
   <form method="POST" action="login.php" class="form-container">
@@ -69,19 +70,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 
     <label>Email:</label>
-    <input type="email" id="email" required>
+    <input type="email" name="email" required>
 
     <label>Password:</label>
-    <input type="password" id="password" required>
+    <input type="password" name="password" required>
 
     <button type="submit">Login</button>
     
-    <p style="margin-top: 15px;">Demo credentials: admin@hiking.com / admin123</p>
+    <p style="margin-top: 15px;">Demo credentials: admin@hiking.com / admin123<br>user@hiking.com / user123</p>
   </form>
+
   <footer>
     <p>© 2025 Hiking Spots Community</p>
   </footer>
 </body>
 </html>
-
-
