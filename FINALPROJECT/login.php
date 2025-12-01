@@ -55,7 +55,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta charset="UTF-8">
   <title>Login | Find Your Hike!L</title>
   <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
 </head>
 <body>
   <header class="header">
@@ -84,4 +83,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </footer>
 </body>
 </html>
+
 
