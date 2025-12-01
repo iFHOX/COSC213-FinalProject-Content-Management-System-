@@ -37,10 +37,10 @@ $is_admin = ($_SESSION['role'] ?? 'author') === 'admin';
 
 // Admin sees all posts with author info, regular users see only their own
 if ($is_admin) {
-    $sql = "SELECT p.*, u.username as author_name 
+    $sql = "SELECT posts.*, users.username as author_name 
             FROM posts p 
-            JOIN users u ON p.user_id = u.id 
-            ORDER BY p.date DESC, p.created_at DESC";
+            JOIN users u ON posts.user_id = users.id 
+            ORDER BY posts.date DESC, posts.created_at DESC";
     $result = $conn->query($sql);
 } else {
     $stmt = $conn->prepare("SELECT * FROM posts WHERE user_id = ? ORDER BY date DESC, created_at DESC");
@@ -115,3 +115,4 @@ if (isset($stmt)) {
 }
 $conn->close();
 ?>
+
