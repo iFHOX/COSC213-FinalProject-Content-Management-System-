@@ -34,15 +34,15 @@ $posts_result = $conn->query($sql);
   </header>
 
   <main id="articles">
-    <?php if ($result->num_rows > 0): ?>
+    <?php if ($posts_result->num_rows > 0): ?>
       <?php while ($post = $posts_result->fetch_assoc()): ?>
         <div class="article-preview">
-          <img src="<?php echo htmlspecialchars($article['image'] ?: 'images/default.jpg'); ?>" 
-               alt="<?php echo htmlspecialchars($article['title']); ?>">
-          <h2><?php echo htmlspecialchars($article['title']); ?></h2>
-          <p class="meta">Posted by <?php echo htmlspecialchars($article['username']); ?> on <?php echo date('M d, Y', strtotime($article['date'])); ?></p>
-          <p><?php echo htmlspecialchars(substr($article['content'], 0, 100)); ?>...</p>
-          <a href="article.php?id=<?php echo $article['id']; ?>" class="btn">Read More</a>
+          <img src="<?php echo htmlspecialchars($post['image'] ?: 'images/default.jpg'); ?>" 
+               alt="<?php echo htmlspecialchars($post['title']); ?>">
+          <h2><?php echo htmlspecialchars($post['title']); ?></h2>
+          <p class="meta">Posted by <?php echo htmlspecialchars($post['username']); ?> on <?php echo date('M d, Y', strtotime($post['date'])); ?></p>
+          <p><?php echo htmlspecialchars(substr($post['content'], 0, 100)); ?>...</p>
+          <a href="article.php?id=<?php echo $post['id']; ?>" class="btn">Read More</a>
         </div>
       <?php endwhile; ?>
     <?php else: ?>
@@ -61,4 +61,3 @@ $posts_result = $conn->query($sql);
 <?php
 $conn->close();
 ?>
-
