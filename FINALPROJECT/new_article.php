@@ -1,38 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>New Hiking Spot</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
-</head>
-<body>
-  <header class="header">
-    <h1><a href="index.html">Hiking Spots</a></h1>
-  </header>
-
-  <form id="articleForm" class="form-container">
-    <h2>Share a New Spot</h2>
-
-    <label>Title:</label>
-    <input type="text" id="title" required>
-
-    <label>Image URL:</label>
-    <input type="text" id="image">
-
-    <label>Description:</label>
-    <textarea id="content" rows="6" required></textarea>
-
-    <button type="submit">Publish</button>
-  </form>
-
-  <p id="msg"></p>
-
-  <footer>
-    <p>© 2025 Hiking Spots Community</p>
-  </footer>
-</body>
-</html>
 <?php
 require_once 'config.php';
 
@@ -122,5 +87,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </footer>
 </body>
 </html>
-
-
