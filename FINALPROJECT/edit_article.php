@@ -18,13 +18,20 @@ if ($post_id === 0) {
 // Get post details
 $conn = getDBConnection();
 $user_id = $_SESSION['user_id'];
-$stmt = $conn->prepare("SELECT * FROM posts WHERE id = ? AND user_id = ?");
-$stmt->bind_param("ii", $post_id, $user_id);
+$is_admin = ($_SESSION['role'] ?? 'author') === 'admin';
+
+if ($is_admin) {
+    $stmt = $conn->prepare("SELECT * FROM posts WHERE id = ?");
+    $stmt->bind_param("i", $post_id);
+} else {
+    $stmt = $conn->prepare("SELECT * FROM posts WHERE id = ? AND user_id = ?");
+    $stmt->bind_param("ii", $post_id, $user_id);
+}
 $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows === 0) {
-    // Post doesn't exist or doesn't belong to user
+    // Post doesn't exist or doesn't belong to user (and user is not admin)
     header("Location: dashboard.php");
     exit();
 }
@@ -37,25 +44,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = trim($_POST['title'] ?? '');
     $image = trim($_POST['image'] ?? '');
     $content = trim($_POST['content'] ?? '');
-    
+
     if (empty($title) || empty($content)) {
         $error = "Please fill in all required fields!";
     } else {
         // Update post
-        $stmt = $conn->prepare("UPDATE posts SET title = ?, image = ?, content = ? WHERE id = ? AND user_id = ?");
-        $stmt->bind_param("sssii", $title, $image, $content, $post_id, $user_id);
-        
+        // Admin can update any post, regular users can only update their own
+        if ($is_admin) {
+            $stmt = $conn->prepare("UPDATE posts SET title = ?, image = ?, content = ? WHERE id = ?");
+            $stmt->bind_param("sssi", $title, $image, $content, $post_id);
+        } else {
+            $stmt = $conn->prepare("UPDATE posts SET title = ?, image = ?, content = ? WHERE id = ? AND user_id = ?");
+            $stmt->bind_param("sssii", $title, $image, $content, $post_id, $user_id);
+        }
+
         if ($stmt->execute()) {
             $stmt->close();
             $conn->close();
-            
+
             // Redirect to dashboard
             header("Location: dashboard.php");
             exit();
         } else {
             $error = "Error updating post: " . $stmt->error;
         }
-        
+
         $stmt->close();
     }
 }
