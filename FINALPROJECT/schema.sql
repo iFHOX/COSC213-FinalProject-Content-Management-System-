@@ -1,9 +1,15 @@
+-- Added drop table because trying different changes in databases created problems with old versions and new versions
+DROP TABLE IF EXISTS comments;
+DROP TABLE IF EXISTS posts;
+DROP TABLE IF EXISTS users;
+
 -- Users table
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     username VARCHAR(100) NOT NULL,
+    role VARCHAR(20) DEFAULT 'author',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -31,8 +37,14 @@ CREATE TABLE comments (
 
 -- admin user
 -- Password: admin123 (hashed with password_hash)
-INSERT INTO users (email, password, username) VALUES 
-('admin@hiking.com', '$2y$10$gev0oZRxe.f9aqNWwkXZT.Y.AuFyWjot.c.XgWCt3TQ319iMPKQmy', 'Admin');
+INSERT INTO users (email, password, username, role) VALUES
+('admin@hiking.com', '$2y$10$gev0oZRxe.f9aqNWwkXZT.Y.AuFyWjot.c.XgWCt3TQ319iMPKQmy', 'Admin', 'admin');
+
+-- regular user
+-- Password: user123
+-- Role: author
+INSERT INTO users (email, password, username, role) VALUES
+    ('user@hiking.com', '$2y$10$.s4ZBhxXKihKdvpmlEgpyOpK6FDcexOTfSCqQlFl8Xi4LyhwbiAJy', 'user', 'author');
 
 -- Sample posts
 INSERT INTO posts (user_id, title, image, content, date) VALUES
