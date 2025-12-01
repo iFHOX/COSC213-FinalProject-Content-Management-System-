@@ -11,26 +11,43 @@ if (!isset($_SESSION['user_id'])) {
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $post_id = intval($_GET['delete']);
     $user_id = $_SESSION['user_id'];
+    $is_admin = ($_SESSION['role'] ?? 'author') === 'admin';
     
     $conn = getDBConnection();
-    // Delete only if post belongs to current user
-    $stmt = $conn->prepare("DELETE FROM posts WHERE id = ? AND user_id = ?");
-    $stmt->bind_param("ii", $post_id, $user_id);
+    // Admin can delete any post, regular users can only delete their own
+    if ($is_admin) {
+        $stmt = $conn->prepare("DELETE FROM posts WHERE id = ?");
+        $stmt->bind_param("i", $post_id);
+    } else {
+        $stmt = $conn->prepare("DELETE FROM posts WHERE id = ? AND user_id = ?");
+        $stmt->bind_param("ii", $post_id, $user_id);
+    }
     $stmt->execute();
     $stmt->close();
     $conn->close();
-    
+
     header("Location: dashboard.php");
     exit();
 }
 
-// User's posts request
+// Fetch user's posts (or all posts if admin)
 $conn = getDBConnection();
 $user_id = $_SESSION['user_id'];
-$stmt = $conn->prepare("SELECT * FROM posts WHERE user_id = ? ORDER BY date DESC, created_at DESC");
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$user_posts_result = $stmt->get_result();
+$is_admin = ($_SESSION['role'] ?? 'author') === 'admin';
+
+// Admin sees all posts with author info, regular users see only their own
+if ($is_admin) {
+    $sql = "SELECT p.*, u.username as author_name 
+            FROM posts p 
+            JOIN users u ON p.user_id = u.id 
+            ORDER BY p.date DESC, p.created_at DESC";
+    $result = $conn->query($sql);
+} else {
+    $stmt = $conn->prepare("SELECT * FROM posts WHERE user_id = ? ORDER BY date DESC, created_at DESC");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -41,7 +58,7 @@ $user_posts_result = $stmt->get_result();
 </head>
 <body>
   <header class="header">
-    <a href="index.php"><img class="logo" id="logo" src="logo.png" alt="Logo with mountains on it that spells 'Find Your Hike'"></a>
+      <a href="index.php"><img class="logo" id="logo" src="logo.png" alt="Logo with mountains on it that spells 'Find Your Hike'"></a>
     <nav id="links">
       <a href="index.php">Home</a>
       <a href="new_article.php">New Spot</a>
@@ -54,14 +71,14 @@ $user_posts_result = $stmt->get_result();
     <h2>My Hiking Posts</h2>
     <p>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!</p>
     
-    <?php if ($user_posts_result->num_rows > 0): ?>
+    <?php if ($result->num_rows > 0): ?>
       <table style="width: 100%; margin-top: 20px;">
         <tr>
           <th>Title</th>
           <th>Date</th>
           <th>Actions</th>
         </tr>
-        <?php while ($post = $user_posts_result->fetch_assoc()): ?>
+        <?php while ($post = $result->fetch_assoc()): ?>
           <tr>
             <td>
               <a href="article.php?id=<?php echo $post['id']; ?>" style="color: var(--green-dark);">
@@ -93,8 +110,8 @@ $user_posts_result = $stmt->get_result();
 </body>
 </html>
 <?php
-$stmt->close();
+if (isset($stmt)) {
+    $stmt->close();
+}
 $conn->close();
 ?>
-
-
