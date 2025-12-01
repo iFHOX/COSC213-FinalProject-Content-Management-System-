@@ -1,41 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Hiking Spots Blog</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
-</head>
-<body>
-  <header class="header">
-    <h1>Hiking Spots</h1>
-    <nav id="links">
-      <a href="index.html">Home</a>
-      <a href="new_article.html">New Spot</a>
-      <a href="login.html">Login</a>
-    </nav>
-  </header>
-
-  <main id="articles"></main>
-
-  <footer>
-    <p id="derechos1">© 2025 Hiking Spots Community</p>
-    <p id="derechos">Copyright reserved for Nery, Simon, Daniel</p>
-
-  </footer>
-</body>
-</html>
-
 <?php
 require_once 'config.php';
 
 // Get all posts from database
 $conn = getDBConnection();
-$sql = "SELECT p.*, u.username 
-        FROM posts p 
-        JOIN users u ON p.user_id = u.id 
-        ORDER BY p.date DESC, p.created_at DESC";
-$result = $conn->query($sql);
+$sql = "SELECT posts.*, users.username 
+        FROM posts 
+        JOIN users ON posts.user_id = users.id 
+        ORDER BY posts.date DESC, posts.created_at DESC";
+$posts_result = $conn->query($sql);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -63,7 +35,7 @@ $result = $conn->query($sql);
 
   <main id="articles">
     <?php if ($result->num_rows > 0): ?>
-      <?php while ($article = $result->fetch_assoc()): ?>
+      <?php while ($post = $posts_result->fetch_assoc()): ?>
         <div class="article-preview">
           <img src="<?php echo htmlspecialchars($article['image'] ?: 'images/default.jpg'); ?>" 
                alt="<?php echo htmlspecialchars($article['title']); ?>">
@@ -89,3 +61,4 @@ $result = $conn->query($sql);
 <?php
 $conn->close();
 ?>
+
