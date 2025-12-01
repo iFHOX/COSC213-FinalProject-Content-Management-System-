@@ -30,7 +30,7 @@ $user_id = $_SESSION['user_id'];
 $stmt = $conn->prepare("SELECT * FROM posts WHERE user_id = ? ORDER BY date DESC, created_at DESC");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
-$result = $stmt->get_result();
+$user_posts_result = $stmt->get_result();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -54,14 +54,14 @@ $result = $stmt->get_result();
     <h2>My Hiking Posts</h2>
     <p>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!</p>
     
-    <?php if ($result->num_rows > 0): ?>
+    <?php if ($user_posts_result->num_rows > 0): ?>
       <table style="width: 100%; margin-top: 20px;">
         <tr>
           <th>Title</th>
           <th>Date</th>
           <th>Actions</th>
         </tr>
-        <?php while ($post = $result->fetch_assoc()): ?>
+        <?php while ($post = $user_posts_result->fetch_assoc()): ?>
           <tr>
             <td>
               <a href="article.php?id=<?php echo $post['id']; ?>" style="color: var(--green-dark);">
@@ -96,4 +96,5 @@ $result = $stmt->get_result();
 $stmt->close();
 $conn->close();
 ?>
+
 
