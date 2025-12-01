@@ -33,3 +33,94 @@
   </footer>
 </body>
 </html>
+<?php
+require_once 'config.php';
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $title = trim($_POST['title'] ?? '');
+    $image = trim($_POST['image'] ?? '');
+    $content = trim($_POST['content'] ?? '');
+    
+    if (empty($title) || empty($content)) {
+        $error = "Please fill in all required fields!";
+    } else {
+        $conn = getDBConnection();
+        $user_id = $_SESSION['user_id'];
+        $date = date('Y-m-d');
+        
+        // Insert new post
+        $stmt = $conn->prepare("INSERT INTO posts (user_id, title, image, content, date) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("issss", $user_id, $title, $image, $content, $date);
+        
+        if ($stmt->execute()) {
+            $stmt->close();
+            $conn->close();
+            
+            // Redirect to home page
+            header("Location: index.php");
+            exit();
+        } else {
+            $error = "Error publishing spot: " . $stmt->error;
+        }
+        
+        $stmt->close();
+        $conn->close();
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>New Hiking Spot | Find Your Hike!</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="header">
+    <a href="index.php"><img class="logo" id="logo" src="logo.png" alt="Logo with mountains on it that spells 'Find Your Hike'"></a>
+      <nav id="links">
+          <a href="index.php">Home</a>
+          <?php if (isset($_SESSION['user_id'])): ?>
+              <a href="new_article.php">New Spot</a>
+              <a href="dashboard.php">Dashboard</a>
+              <a href="logout.php">Logout</a>
+          <?php else: ?>
+              <a href="new_article.php">New Spot</a>
+              <a href="login.php">Login</a>
+          <?php endif; ?>
+      </nav>
+  </header>
+
+  <form method="POST" action="new_article.php" class="form-container">
+    <h2>Share a New Spot</h2>
+
+    <?php if (isset($error)): ?>
+      <p id="msg" style="color: red;"><?php echo htmlspecialchars($error); ?></p>
+    <?php endif; ?>
+
+    <label>Title:</label>
+    <input type="text" name="title" required>
+
+    <label>Image URL:</label>
+    <input type="text" name="image" placeholder="https://example.com/image.jpg">
+
+    <label>Description:</label>
+    <textarea name="content" rows="6" required></textarea>
+
+    <button type="submit">Publish</button>
+  </form>
+
+  <footer>
+    <p>© 2025 Hiking Spots Community</p>
+  </footer>
+</body>
+</html>
+
+
