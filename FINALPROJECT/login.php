@@ -70,10 +70,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 
     <label>Email:</label>
-    <input type="email" name="email" required>
+    <input type="email" id="email" name="email" required>
 
     <label>Password:</label>
-    <input type="password" name="password" required>
+    <input type="password" id="password" name="password" required>
 
     <button type="submit">Login</button>
     
@@ -85,3 +85,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </footer>
 </body>
 </html>
+
